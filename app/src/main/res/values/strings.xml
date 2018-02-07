@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Checador</string>
+    <string name="title_activity_signup">SignupActivity</string>
+    <string name="title_activity_camera">CameraActivity</string>
+</resources>
