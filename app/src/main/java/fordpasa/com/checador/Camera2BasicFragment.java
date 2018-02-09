@@ -52,10 +52,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -578,7 +581,7 @@ public class Camera2BasicFragment extends Fragment
 
                 // We fit the aspect ratio of TextureView to the size of preview we picked.
                 int orientation = getResources().getConfiguration().orientation;
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) { //aqui ORIENTATION_LANDSCAPE
                     mTextureView.setAspectRatio(
                             mPreviewSize.getWidth(), mPreviewSize.getHeight());
                 } else {
@@ -909,10 +912,16 @@ public class Camera2BasicFragment extends Fragment
         switch (view.getId()) {
             case R.id.picture: {
                 takePicture();
+                Calendar c = Calendar.getInstance();
+                Date fecha = c.getTime();
                 System.out.println("El posicionamiento del usuario: "+CameraActivity.posicionamiento);
                 System.out.println("La direccion del archivo: "+ mFile);
                 System.out.println("Correo del usuario: " + LoginActivity.sCorreo);
-                mandarCorreo();
+                mandarCorreo("asortega@pasaford.com.mx","CHECK IN USUARIO (-) ","Check in " +
+                        " con la localizacion: " + CameraActivity.posicionamiento + " \n Check in fecha: "+fecha.toString()+" \n Usuario: "+LoginActivity.sCorreo);
+
+                WebServiceMaps ws = new WebServiceMaps();
+                ws.webServ("40.714728,-73.998672");
                 break;
             }
             case R.id.info: {
@@ -1058,16 +1067,20 @@ public class Camera2BasicFragment extends Fragment
     }
 
 
-public void mandarCorreo(){
-    String strEmail = "asortega@pasaford.com.mx";
-    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    emailIntent.setType("application/image");
-    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{strEmail});
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,"Prueba de Correo");
-    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Texto del correo");
-    emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///" + mFile));
-    startActivity(Intent.createChooser(emailIntent, "Enviando email..."));
-}
+        public void mandarCorreo(String receptor, String subject, String contenido){
+            String strEmail = receptor;
+            Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+            emailIntent.setType("application/image");
+            emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{strEmail});
+            emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,subject);
+            emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, contenido);
+            emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///" + mFile));
+            startActivity(Intent.createChooser(emailIntent, "Enviando email..."));
+        }
+
+
+
+
 
 }
 

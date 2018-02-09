@@ -1,5 +1,7 @@
 package fordpasa.com.checador;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
@@ -17,52 +19,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Principal on 02/02/2018.
+ * Created by Principal on 08/02/2018.
  */
 
-public class IngresoUsuario {
+public class WebServiceMaps {
 
-    public static IngresoListener listener;
+    public void webServ(final String coordenadas){
+        //final String coordenadas2 = coordenadas.replace(",", "%2c");
 
-    //IMPLEMENTACION DE LOS METODOS DE CONEXION
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public IngresoUsuario(final String correo, final String contrasena){
         Thread thread = new Thread(new Runnable() {
 
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void run(){
                 HashMap<String, Object> valores = new HashMap<>();
-                valores.put("correo", correo);
-                valores.put("contrasena", contrasena);
+                valores.put("center", coordenadas);
+                valores.put("zoom", "12");
+                valores.put("size", "40x40");
+                valores.put("key", "AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk"); //la llave
 
-                String respuesta = post("http://sweetdev.net/login_aplicacionPASA.php", valores);
+                String respuesta = post("https://maps.googleapis.com/maps/api/staticmap", valores);
 
-                System.out.println(respuesta);
-                int resp = leerRespuesta(respuesta);//regresa 1 o 0
-                //el listener
-                if (listener != null) {
-                    listener.activarIngreso(resp);
-                }
+                System.out.println("Respuesta del webservice: " + respuesta);
+
 
             }
         });
 
         thread.start();
+
     }
 
-    public int leerRespuesta(String resultado){
-        int i = resultado.indexOf('1');
-        if(i>= 0){
-            return 1;
-        }else{
-            return 0;
-        }
-    }
-
-
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    //@RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public String post(String pagina, Map<String, Object> valores) {
         URL url = null;
         HttpURLConnection conexion = null;
@@ -81,13 +69,21 @@ public class IngresoUsuario {
                         dataBuilder.append('&');
                     }
 
-                    dataBuilder.append(URLEncoder.encode(parametro.getKey(), "UTF-8"));
+                /*    dataBuilder.append(URLEncoder.encode(parametro.getKey(), "UTF-8"));
                     dataBuilder.append('=');
                     dataBuilder.append(URLEncoder.encode(parametro.getValue().toString(), "UTF-8"));
+*/
+
+                    dataBuilder.append(parametro.getKey().toString());
+                    dataBuilder.append('=');
+                    dataBuilder.append(parametro.getValue().toString());
+
                 }
 
                 datos = dataBuilder.toString();
-            } catch (UnsupportedEncodingException ex) {
+
+                System.out.println(" final de ws " + datos);
+            } catch (Exception ex) {
                 System.out.println("NO SE ALMACENARON LOS VALORES CORRECTAMENTE");
             }
         }
@@ -113,7 +109,7 @@ public class IngresoUsuario {
          * Se establece el tipo de peticion.
          */
         try {
-            conexion.setRequestMethod("POST");
+            conexion.setRequestMethod("GET");
         } catch (ProtocolException ex) {
             System.out.println("Algo salio mal con la peticion");
         }
@@ -136,6 +132,10 @@ public class IngresoUsuario {
                         "Content-Length", String.valueOf(dataBytes.length));
 
                 conexion.getOutputStream().write(dataBytes);
+                final Object content = conexion.getContent();
+                System.out.println("contentooo  " + content.toString());
+
+
             } catch (UnsupportedEncodingException ex) {
                 System.out.println("salio mal en utf8");
             } catch (IOException ex) {
@@ -173,7 +173,7 @@ public class IngresoUsuario {
 
             return respuestaHttp;
         } catch (IOException ex) {
-            System.out.println("salio mal en obtener la respuesta");
+            System.out.println("algo salio mal al obtener la respuesta");
         } finally {
             conexion.disconnect();
         }
@@ -181,102 +181,29 @@ public class IngresoUsuario {
         return null;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public String get(String pagina, Map<String, Object> valores) {
-        URL url = null;
-        HttpURLConnection conexion = null;
+    public static Bitmap getGoogleMapThumbnail(double lati, double longi){
+        String URL = "http://maps.google.com/maps/api/staticmap?center=" +lati + "," + longi + "&zoom=15&size=200x200&sensor=false";
+        Bitmap bmp = null;
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpGet request = new HttpGet(URL);
 
-        // Se almacenan los datos a enviar en una cadena de texto.
-        String datos = "";
-
-        /**
-         * Si se especifican valores se almacenan en la variable datos.
-         */
-        if (null != valores) {
-            try {
-                StringBuilder dataBuilder = new StringBuilder();
-                for (Map.Entry<String, Object> parametro : valores.entrySet()) {
-                    if (dataBuilder.length() != 0) {
-                        dataBuilder.append('&');
-                    }
-
-                    dataBuilder.append(URLEncoder.encode(parametro.getKey(), "UTF-8"));
-                    dataBuilder.append('=');
-                    dataBuilder.append(URLEncoder.encode(parametro.getValue().toString(), "UTF-8"));
-                }
-
-                datos = dataBuilder.toString();
-            } catch (UnsupportedEncodingException ex) {
-                System.out.println("erroooooooor");
-            }
-        }
-
-        /**
-         * Se crea la conexion.
-         */
+        InputStream in = null;
         try {
-            url = new URL(pagina + "?" + datos);
-
-            conexion = (HttpURLConnection) url.openConnection();
-        } catch (MalformedURLException ex) {
-            System.out.println("URL MAL FORMADA");
-        } catch (IOException ex) {
-            System.out.println("ERROR EN LA URL");
+            in = httpclient.execute(request).getEntity().getContent();
+            bmp = BitmapFactory.decodeStream(in);
+            in.close();
+        } catch (IllegalStateException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
-        if (null == url || null == conexion) {
-            return null;
-        }
-
-        /**
-         * Se establece el tipo de peticion.
-         */
-        try {
-            conexion.setRequestMethod("POST");
-        } catch (ProtocolException ex) {
-            System.out.println("error en el tipo de peticion");
-        }
-
-        // Se deshabilita el cache.
-        conexion.setUseCaches(false);
-        // Se especifica que queremos obtener la respuesta del servidor.
-        conexion.setDoOutput(true);
-
-        /**
-         * Se obtiene la respuesta.
-         */
-        try {
-            // Se obtienen los errores.
-            InputStream errores = conexion.getErrorStream();
-
-            // Si no hay errores entonces se obtiene la respuesta.
-            if (null == errores) {
-                errores = conexion.getInputStream();
-            }
-
-            // Se construye la respuesta.
-            StringBuilder constructorRespuesta = new StringBuilder();
-            try (BufferedReader reader
-                         = new BufferedReader(new InputStreamReader(errores))) {
-                String linea;
-                while ((linea = reader.readLine()) != null) {
-                    constructorRespuesta.append(linea);
-                    constructorRespuesta.append('\r');
-                }
-            }
-
-            // Se obtiene el codigo http, por ejemplo 200, 404, 500
-            int codigoHttp = conexion.getResponseCode();
-            // Se obtiene la respuesta.
-            String respuestaHttp = constructorRespuesta.toString();
-
-            return respuestaHttp;
-        } catch (IOException ex) {
-            System.out.println("otra vez error en la respuesta");
-        } finally {
-            conexion.disconnect();
-        }
-
-        return null;
+        return bmp;
     }
+
 }
