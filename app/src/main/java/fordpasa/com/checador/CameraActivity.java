@@ -1,7 +1,9 @@
 package fordpasa.com.checador;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -9,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Surface;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -27,6 +30,8 @@ import java.util.Map;
 public class CameraActivity extends AppCompatActivity {
 
     public static String posicionamiento;
+    public static String LocaclizacionEnSucursal= "";
+    public static String mapaDeSucursal= "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,31 +41,42 @@ public class CameraActivity extends AppCompatActivity {
 
 
         String s = checkInEnSitio();
-        Toast.makeText(getBaseContext(), "Sus posición son: "+ s, Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), "Sus posición es: "+ s, Toast.LENGTH_LONG).show();
 
         if(s.equals("Sucursal Ford Pasa Matriz")){
             posicionamiento = "Sucursal Ford Pasa Matriz";
+            mapaDeSucursal= "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center="+matrizLat+","+matrizLng+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+matrizLat+","+matrizLng;
+
         }
-        if (s.equals("Sucursal Juventud")){
+        else if (s.equals("Sucursal Juventud")){
             posicionamiento = "Sucursal Juventud";
+            mapaDeSucursal= "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center="+juventudLat+","+juventudLng+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+juventudLat+","+juventudLng;
         }
-        if (s.equals("Sucursal Seminuevos")){
+        else if (s.equals("Sucursal Seminuevos")){
             posicionamiento = "Sucursal Seminuevos";
+            mapaDeSucursal= "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center="+seminuevosLat+","+seminuevosLng+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+seminuevosLat+","+seminuevosLng;
         }
-        if (s.equals("Sucursal Casas Grandes")){
+        else if (s.equals("Sucursal Casas Grandes")){
             posicionamiento = "Sucursal Casas Grandes";
+            mapaDeSucursal= "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center="+cgLat+","+cgLng+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+cgLat+","+cgLng;
         }
-        if (s.equals("Sucursal Cuauhtemoc")){
+        else if (s.equals("Sucursal Cuauhtemoc")){
             posicionamiento = "";
-        }if (s.equals("Sucursal Delicias")){
+            mapaDeSucursal= "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center="+cuahuLat+","+cuahuLng+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+cuahuLat+","+cuahuLng;
+        }else if (s.equals("Sucursal Delicias")){
             posicionamiento = "Sucursal Delicias";
-        }if (s.equals("Sucursal Parral")){
+            mapaDeSucursal= "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center="+deliciasLat+","+deliciasLng+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+deliciasLat+","+deliciasLng;
+        }else if (s.equals("Sucursal Parral")){
             posicionamiento = "Sucursal Parral";
-        }if (s.equals("Sucursal Torreon")){
+            mapaDeSucursal= "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center="+parralLat+","+parralLng+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+parralLat+","+parralLng;
+        }else if (s.equals("Sucursal Torreon")){
             posicionamiento = "Sucursal Torreon";
-        }if (s.equals("Sucursal Conauto")){
+            mapaDeSucursal= "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center="+torreonLat+","+torreonLng+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+torreonLat+","+torreonLng;
+        }else if (s.equals("Sucursal Conauto")){
             posicionamiento = "Sucursal Conauto";
+            mapaDeSucursal= "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center="+conautoLat+","+conautoLng+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+conautoLat+","+conautoLng;
         }else{
+            LocaclizacionEnSucursal = "1";
             posicionamiento = s;
         }
 
@@ -323,5 +339,7 @@ public class CameraActivity extends AppCompatActivity {
 
         return null;
     }
+
+
 
 }

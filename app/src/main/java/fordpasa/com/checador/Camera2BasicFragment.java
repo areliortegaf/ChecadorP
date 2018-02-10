@@ -917,11 +917,23 @@ public class Camera2BasicFragment extends Fragment
                 System.out.println("El posicionamiento del usuario: "+CameraActivity.posicionamiento);
                 System.out.println("La direccion del archivo: "+ mFile);
                 System.out.println("Correo del usuario: " + LoginActivity.sCorreo);
-                mandarCorreo("asortega@pasaford.com.mx","CHECK IN USUARIO (-) ","Check in " +
-                        " con la localizacion: " + CameraActivity.posicionamiento + " \n Check in fecha: "+fecha.toString()+" \n Usuario: "+LoginActivity.sCorreo);
 
-                WebServiceMaps ws = new WebServiceMaps();
-                ws.webServ("40.714728,-73.998672");
+
+                if(CameraActivity.LocaclizacionEnSucursal.equals("1")){
+                    String linkImagen = "https://maps.googleapis.com/maps/api/staticmap?size=400x400&key=AIzaSyDnI1pToZhDoC0MWg6NB9x6PreBlAMAoIk&zoom=18&center=" + CameraActivity.posicionamiento+"&size=600x300&maptype=roadmap&markers=color:blue%7Clabel:S%7C"+CameraActivity.posicionamiento;
+                    mandarCorreo("asortega@pasaford.com.mx","CHECK IN USUARIO (-) ","Check in " +
+                            " con la localizacion: " + CameraActivity.posicionamiento + " \n Check in fecha: "+fecha.toString()+" \n Usuario: "
+                            +LoginActivity.sCorreo + "\n Imagen Posicion: " + linkImagen);
+                    System.out.println("El Posicionamiento: " + CameraActivity.posicionamiento);
+
+                }else{
+                    mandarCorreo("asortega@pasaford.com.mx, hbarraza@pasaford.com.mx","CHECK IN USUARIO (-) ","Check in " +
+                            " con la localizacion: " + CameraActivity.posicionamiento + " \n Check in fecha: "+fecha.toString()+" \n Usuario: "
+                            +LoginActivity.sCorreo + "\n Imagen Posicion: " + CameraActivity.mapaDeSucursal);
+                }
+
+              //  WebServiceMaps ws = new WebServiceMaps();
+              //  ws.webServ("40.714728,-73.998672");
                 break;
             }
             case R.id.info: {

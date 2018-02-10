@@ -181,7 +181,7 @@ public class WebServiceMaps {
         return null;
     }
 
-    public static Bitmap getGoogleMapThumbnail(double lati, double longi){
+  /*  public static Bitmap getGoogleMapThumbnail(double lati, double longi){
         String URL = "http://maps.google.com/maps/api/staticmap?center=" +lati + "," + longi + "&zoom=15&size=200x200&sensor=false";
         Bitmap bmp = null;
         HttpClient httpclient = new DefaultHttpClient();
@@ -205,5 +205,5 @@ public class WebServiceMaps {
 
         return bmp;
     }
-
+*/
 }
